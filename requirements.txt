@@ -1,0 +1,11 @@
+fastapi
+python-multipart
+uvicorn
+pypdf
+img2pdf
+pillow
+mammoth
+xhtml2pdf
+pdf2docx
+python-docx
+docxcompose
