@@ -7,26 +7,25 @@ from rembg import remove
 
 router = APIRouter()
 
+# Create session once at startup (outside the endpoint)
+bg_removal_session = new_session("u2netp")  # Smaller model (~4.7MB)
+
 @router.post("/remove-bg")
 async def remove_background(files: List[UploadFile] = File(...)):
     try:
         file = files[0]
         content = await file.read()
         
-        # Remove background using rembg
-        output_content = remove(content)
+        # Use the lightweight model
+        output_content = remove(content, session=bg_removal_session)
         
-        # Convert to PIL Image to ensure proper format
         img = Image.open(BytesIO(output_content))
-        
         output = BytesIO()
-        # Save as PNG to preserve transparency
         img.save(output, format='PNG')
         
         return Response(content=output.getvalue(), media_type="image/png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Background removal failed: {str(e)}")
-
 
 @router.post("/compress-img")
 async def compress_img(quality: int = Form(...), files: List[UploadFile] = File(...)):
