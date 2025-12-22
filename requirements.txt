@@ -9,5 +9,4 @@ xhtml2pdf
 pdf2docx
 python-docx
 docxcompose
-rembg
-onnxruntime
+
