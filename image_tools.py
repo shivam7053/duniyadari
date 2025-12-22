@@ -3,29 +3,20 @@ from typing import List
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import Response
 from PIL import Image
-from rembg import remove
+from rembg import remove, new_session  # Add new_session to imports
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Create session once at startup (outside the endpoint)
-bg_removal_session = new_session("u2netp")  # Smaller model (~4.7MB)
-
-@router.post("/remove-bg")
-async def remove_background(files: List[UploadFile] = File(...)):
-    try:
-        file = files[0]
-        content = await file.read()
-        
-        # Use the lightweight model
-        output_content = remove(content, session=bg_removal_session)
-        
-        img = Image.open(BytesIO(output_content))
-        output = BytesIO()
-        img.save(output, format='PNG')
-        
-        return Response(content=output.getvalue(), media_type="image/png")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Background removal failed: {str(e)}")
+# Initialize at startup with lightweight model
+try:
+    bg_removal_session = new_session("u2netp")
+    logger.info("Background removal model loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load background removal model: {e}")
+    bg_removal_session = None
 
 @router.post("/compress-img")
 async def compress_img(quality: int = Form(...), files: List[UploadFile] = File(...)):
@@ -35,7 +26,6 @@ async def compress_img(quality: int = Form(...), files: List[UploadFile] = File(
         img = Image.open(BytesIO(content))
         
         output = BytesIO()
-        # Convert to RGB if saving as JPEG to avoid errors with transparency
         format_to_save = img.format if img.format else 'JPEG'
         
         if format_to_save == 'JPEG' and img.mode != 'RGB':
@@ -54,7 +44,6 @@ async def resize_img(width: int = Form(...), height: int = Form(...), files: Lis
         content = await file.read()
         img = Image.open(BytesIO(content))
         
-        # Resize using high-quality resampling
         img = img.resize((width, height), Image.Resampling.LANCZOS)
         
         output = BytesIO()
@@ -76,7 +65,6 @@ async def crop_img(
         content = await file.read()
         img = Image.open(BytesIO(content))
         
-        # Crop box is defined as (left, top, right, bottom)
         box = (left, top, left + width, top + height)
         img = img.crop(box)
         
@@ -95,7 +83,6 @@ async def convert_img(format: str = Form(...), files: List[UploadFile] = File(..
         content = await file.read()
         img = Image.open(BytesIO(content))
         
-        # Handle transparency for JPEG
         if format.upper() == "JPEG" and img.mode == "RGBA":
             img = img.convert("RGB")
             
@@ -105,3 +92,33 @@ async def convert_img(format: str = Form(...), files: List[UploadFile] = File(..
         return Response(content=output.getvalue(), media_type=f"image/{format.lower()}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
+
+@router.post("/remove-bg")
+async def remove_background(files: List[UploadFile] = File(...)):
+    if bg_removal_session is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Background removal service is currently unavailable"
+        )
+    
+    try:
+        file = files[0]
+        content = await file.read()
+        
+        # Limit file size to prevent memory issues (10MB limit)
+        if len(content) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image too large. Maximum 10MB.")
+        
+        # Use the lightweight model session
+        output_content = remove(content, session=bg_removal_session)
+        
+        img = Image.open(BytesIO(output_content))
+        output = BytesIO()
+        img.save(output, format='PNG')
+        
+        return Response(content=output.getvalue(), media_type="image/png")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Background removal failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Background removal failed: {str(e)}")
