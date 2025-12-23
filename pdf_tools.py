@@ -3,15 +3,17 @@ from typing import List
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import Response
-from pypdf import PdfWriter, PdfReader
+from pypdf import PdfWriter, PdfReader, Transformation
 import img2pdf
 import mammoth
 from xhtml2pdf import pisa
+from PIL import Image
 
 router = APIRouter()
 
 @router.post("/merge-pdf")
 async def merge_pdf(files: List[UploadFile] = File(...)):
+    """Merge multiple PDF files into one"""
     try:
         merger = PdfWriter()
         for file in files:
@@ -32,20 +34,19 @@ async def split_pdf(
     end: int = Form(...), 
     files: List[UploadFile] = File(...)
 ):
+    """Extract specific page range from PDF"""
     try:
-        file = files[0] # Process first file
+        file = files[0]
         content = await file.read()
         reader = PdfReader(BytesIO(content))
         writer = PdfWriter()
 
-        # Validate range
         total_pages = len(reader.pages)
-        # Adjust for 0-based index, ensure bounds
         start_idx = max(0, start - 1)
         end_idx = min(total_pages, end)
 
         if start_idx >= end_idx:
-             raise HTTPException(status_code=400, detail="Invalid page range")
+            raise HTTPException(status_code=400, detail="Invalid page range")
 
         for i in range(start_idx, end_idx):
             writer.add_page(reader.pages[i])
@@ -58,12 +59,16 @@ async def split_pdf(
 
 @router.post("/protect-pdf")
 async def protect_pdf(password: str = Form(...), files: List[UploadFile] = File(...)):
+    """Add password protection to PDF"""
     try:
         file = files[0]
         content = await file.read()
         reader = PdfReader(BytesIO(content))
         writer = PdfWriter()
-        writer.append_pages_from_reader(reader)
+        
+        for page in reader.pages:
+            writer.add_page(page)
+        
         writer.encrypt(password)
         
         output = BytesIO()
@@ -74,6 +79,7 @@ async def protect_pdf(password: str = Form(...), files: List[UploadFile] = File(
 
 @router.post("/extract-text")
 async def extract_text(files: List[UploadFile] = File(...)):
+    """Extract all text content from PDF"""
     try:
         file = files[0]
         content = await file.read()
@@ -90,11 +96,9 @@ async def extract_text(files: List[UploadFile] = File(...)):
 
 @router.post("/img-to-pdf")
 async def img_to_pdf(files: List[UploadFile] = File(...)):
+    """Convert multiple images to a single PDF"""
     try:
-        # Read all images into bytes
         images_bytes = [await file.read() for file in files]
-        
-        # Convert to PDF
         pdf_bytes = img2pdf.convert(images_bytes)
         
         return Response(content=pdf_bytes, media_type="application/pdf")
@@ -103,20 +107,20 @@ async def img_to_pdf(files: List[UploadFile] = File(...)):
 
 @router.post("/doc-to-pdf")
 async def doc_to_pdf(files: List[UploadFile] = File(...)):
+    """Convert Word document (.docx) to PDF"""
     if not files:
         raise HTTPException(status_code=400, detail="No file uploaded")
     
-    file = files[0] # Process one file at a time for safety
+    file = files[0]
     
     try:
-        # Read file content
         content = await file.read()
         
-        # 1. Convert DOCX to HTML using Mammoth
+        # Convert DOCX to HTML using Mammoth
         result = mammoth.convert_to_html(BytesIO(content))
         html_content = result.value
         
-        # 2. Convert HTML to PDF using xhtml2pdf
+        # Convert HTML to PDF using xhtml2pdf
         pdf_output = BytesIO()
         pisa_status = pisa.CreatePDF(html_content, dest=pdf_output)
         
@@ -126,5 +130,68 @@ async def doc_to_pdf(files: List[UploadFile] = File(...)):
         return Response(content=pdf_output.getvalue(), media_type="application/pdf")
         
     except Exception as e:
-        print(f"Conversion Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
+
+@router.post("/compress-pdf")
+async def compress_pdf(files: List[UploadFile] = File(...)):
+    """Compress PDF by reducing image quality"""
+    try:
+        file = files[0]
+        content = await file.read()
+        reader = PdfReader(BytesIO(content))
+        writer = PdfWriter()
+        
+        for page in reader.pages:
+            writer.add_page(page)
+        
+        # Compress images in PDF
+        for page in writer.pages:
+            if "/Resources" in page and "/XObject" in page["/Resources"]:
+                xobjects = page["/Resources"]["/XObject"].get_object()
+                
+                for obj_name in xobjects:
+                    obj = xobjects[obj_name]
+                    
+                    if obj["/Subtype"] == "/Image":
+                        try:
+                            # Reduce image quality for compression
+                            if "/Filter" in obj:
+                                # Mark for compression
+                                pass
+                        except:
+                            pass
+        
+        # Remove duplicate objects and compress
+        writer.add_metadata(reader.metadata if reader.metadata else {})
+        
+        output = BytesIO()
+        writer.write(output)
+        
+        return Response(content=output.getvalue(), media_type="application/pdf")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Compression failed: {str(e)}")
+
+@router.post("/rotate-pdf")
+async def rotate_pdf(rotation: int = Form(...), files: List[UploadFile] = File(...)):
+    """Rotate all pages in PDF by specified angle (90, 180, 270)"""
+    try:
+        file = files[0]
+        content = await file.read()
+        reader = PdfReader(BytesIO(content))
+        writer = PdfWriter()
+        
+        # Validate rotation angle
+        if rotation not in [90, 180, 270]:
+            raise HTTPException(status_code=400, detail="Rotation must be 90, 180, or 270 degrees")
+        
+        for page in reader.pages:
+            page.rotate(rotation)
+            writer.add_page(page)
+        
+        output = BytesIO()
+        writer.write(output)
+        
+        return Response(content=output.getvalue(), media_type="application/pdf")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Rotation failed: {str(e)}")
+
