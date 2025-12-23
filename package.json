@@ -33,11 +33,14 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
+<<<<<<< HEAD
   },
   "overrides": {
     "react-helmet-async": {
       "react": "$react",
       "react-dom": "$react-dom"
     }
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
   }
 }

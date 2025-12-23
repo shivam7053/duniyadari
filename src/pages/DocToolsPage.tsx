@@ -9,9 +9,12 @@ import ImageIcon from '@mui/icons-material/Image';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
+<<<<<<< HEAD
 import CompressIcon from '@mui/icons-material/Compress';
 import SecurityIcon from '@mui/icons-material/Security';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
 
@@ -24,10 +27,15 @@ const DocToolsPage: React.FC = () => {
   // Tool specific states
   const [startPage, setStartPage] = useState('1');
   const [endPage, setEndPage] = useState('5');
+<<<<<<< HEAD
   const [password, setPassword] = useState('');
   const [watermarkText, setWatermarkText] = useState('DRAFT');
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://duniyadari-api.onrender.com'; 
+=======
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'; 
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -35,8 +43,11 @@ const DocToolsPage: React.FC = () => {
     setError('');
     setStartPage('1');
     setEndPage('5');
+<<<<<<< HEAD
     setPassword('');
     setWatermarkText('DRAFT');
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,9 +65,12 @@ const DocToolsPage: React.FC = () => {
       case 3: return 'merge-doc';
       case 4: return 'split-doc';
       case 5: return 'extract-text-doc';
+<<<<<<< HEAD
       case 6: return 'compress-doc';
       case 7: return 'protect-doc';
       case 8: return 'watermark-doc';
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       default: return '';
     }
   };
@@ -66,7 +80,11 @@ const DocToolsPage: React.FC = () => {
       case 0: return '.pdf';
       case 1: return 'image/*';
       case 2: return '.txt';
+<<<<<<< HEAD
       default: return '.docx';
+=======
+      default: return '.docx'; // For merge, split, extract
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     }
   };
 
@@ -85,6 +103,7 @@ const DocToolsPage: React.FC = () => {
       return;
     }
 
+<<<<<<< HEAD
     const endpoint = getEndpoint();
 
     // Validation
@@ -93,6 +112,8 @@ const DocToolsPage: React.FC = () => {
       return;
     }
 
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     setLoading(true);
     setError('');
     const formData = new FormData();
@@ -101,6 +122,7 @@ const DocToolsPage: React.FC = () => {
       formData.append('files', file);
     });
 
+<<<<<<< HEAD
     if (endpoint === 'split-doc') {
       formData.append('start', startPage);
       formData.append('end', endPage);
@@ -108,6 +130,13 @@ const DocToolsPage: React.FC = () => {
       formData.append('password', password);
     } else if (endpoint === 'watermark-doc') {
       formData.append('text', watermarkText);
+=======
+    const endpoint = getEndpoint();
+
+    if (endpoint === 'split-doc') {
+      formData.append('start', startPage);
+      formData.append('end', endPage);
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     }
 
     try {
@@ -139,7 +168,11 @@ const DocToolsPage: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Doc Tools",
+<<<<<<< HEAD
     "description": "Free online Word Document tools. Convert, Merge, Split, Compress, Protect, and Watermark Word documents.",
+=======
+    "description": "Free online Word Document tools. Convert PDF to Word, Images to Word, Text to Word, Merge Docs, and Split Docs.",
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     "url": window.location.href,
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Any",
@@ -153,9 +186,15 @@ const DocToolsPage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <SEO 
+<<<<<<< HEAD
         title="Doc Tools - Convert, Merge, Split & Protect Word Documents" 
         description="Free online Word Document tools. Convert PDF to Word, Images to Word, Merge, Split, Compress, Protect, and Watermark documents."
         keywords="doc tools, word converter, pdf to word, merge docx, split docx, compress docx, protect docx"
+=======
+        title="Doc Tools - Convert, Merge & Split Word Documents" 
+        description="Free online Word Document tools. Convert PDF to Word, Images to Word, Text to Word, Merge Docs, and Split Docs."
+        keywords="doc tools, word converter, pdf to word, merge docx, split docx"
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       />
       <Helmet>
         <script type="application/ld+json">
@@ -166,11 +205,16 @@ const DocToolsPage: React.FC = () => {
         Doc Tools
       </Typography>
       <Typography variant="subtitle1" align="center" color="text.secondary" sx={{ mb: 4 }}>
+<<<<<<< HEAD
         Convert, merge, split & manage Word documents
+=======
+        Convert, merge, and manipulate Word documents.
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       </Typography>
 
       <Paper elevation={3}>
         <Tabs value={tabValue} onChange={handleTabChange} centered variant="scrollable" scrollButtons="auto">
+<<<<<<< HEAD
           <Tab icon={<DescriptionIcon />} label="PDF → Word" />
           <Tab icon={<ImageIcon />} label="Images → Word" />
           <Tab icon={<TextSnippetIcon />} label="Text → Word" />
@@ -180,6 +224,14 @@ const DocToolsPage: React.FC = () => {
           <Tab icon={<CompressIcon />} label="Compress" />
           <Tab icon={<SecurityIcon />} label="Protect" />
           <Tab icon={<AutoFixHighIcon />} label="Watermark" />
+=======
+          <Tab icon={<DescriptionIcon />} label="PDF to Word" />
+          <Tab icon={<ImageIcon />} label="Images to Word" />
+          <Tab icon={<TextSnippetIcon />} label="Text to Word" />
+          <Tab icon={<MergeTypeIcon />} label="Merge Docs" />
+          <Tab icon={<ContentCutIcon />} label="Split Doc" />
+          <Tab icon={<TextSnippetIcon />} label="Extract Text" />
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
         </Tabs>
 
         <Box sx={{ p: 4, textAlign: 'center' }}>
@@ -188,7 +240,11 @@ const DocToolsPage: React.FC = () => {
             style={{ display: 'none' }}
             id="raised-button-file"
             type="file"
+<<<<<<< HEAD
             multiple={tabValue === 1 || tabValue === 3}
+=======
+            multiple={tabValue === 1 || tabValue === 3} // Allow multiple for Images and Merge
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
             onChange={handleFileChange}
           />
           <label htmlFor="raised-button-file">
@@ -210,6 +266,7 @@ const DocToolsPage: React.FC = () => {
           {tabValue === 4 && (
             <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
               <Grid size={4}>
+<<<<<<< HEAD
                 <TextField 
                   label="Start Page" 
                   type="number" 
@@ -228,10 +285,17 @@ const DocToolsPage: React.FC = () => {
                   onChange={(e) => setEndPage(e.target.value)} 
                   inputProps={{ min: 1 }}
                 />
+=======
+                <TextField label="Start Page" type="number" fullWidth value={startPage} onChange={(e) => setStartPage(e.target.value)} />
+              </Grid>
+              <Grid size={4}>
+                <TextField label="End Page" type="number" fullWidth value={endPage} onChange={(e) => setEndPage(e.target.value)} />
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
               </Grid>
             </Grid>
           )}
 
+<<<<<<< HEAD
           {tabValue === 7 && (
             <Box sx={{ mb: 2, maxWidth: 300, mx: 'auto' }}>
               <TextField 
@@ -257,6 +321,8 @@ const DocToolsPage: React.FC = () => {
             </Box>
           )}
 
+=======
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
           <Box sx={{ mt: 2 }}>
             <Button 
               variant="contained" 
@@ -275,4 +341,8 @@ const DocToolsPage: React.FC = () => {
   );
 };
 
+<<<<<<< HEAD
 export default DocToolsPage;
+=======
+export default DocToolsPage;
+>>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
