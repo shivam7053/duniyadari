@@ -8,14 +8,11 @@ import PhotoSizeSelectSmallIcon from '@mui/icons-material/PhotoSizeSelectSmall';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import CropIcon from '@mui/icons-material/Crop';
 import TransformIcon from '@mui/icons-material/Transform';
-<<<<<<< HEAD
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import FlipIcon from '@mui/icons-material/Flip';
 import TuneIcon from '@mui/icons-material/Tune';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import WatermarkIcon from '@mui/icons-material/BrandingWatermark';
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
 
@@ -32,7 +29,6 @@ const ImageToolsPage: React.FC = () => {
   const [cropX, setCropX] = useState('0');
   const [cropY, setCropY] = useState('0');
   const [format, setFormat] = useState('PNG');
-<<<<<<< HEAD
   const [rotation, setRotation] = useState('90');
   const [flipDirection, setFlipDirection] = useState('horizontal');
   const [brightness, setBrightness] = useState('1.0');
@@ -41,34 +37,23 @@ const ImageToolsPage: React.FC = () => {
   const [watermarkText, setWatermarkText] = useState('Sample');
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://duniyadari-api.onrender.com'; 
-=======
-
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'; 
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     setFiles(null);
     setError('');
-<<<<<<< HEAD
-=======
-    // Reset defaults
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     setQuality('80');
     setWidth('800');
     setHeight('600');
     setCropX('0');
     setCropY('0');
     setFormat('PNG');
-<<<<<<< HEAD
     setRotation('90');
     setFlipDirection('horizontal');
     setBrightness('1.0');
     setContrast('1.0');
     setBlurRadius('2');
     setWatermarkText('Sample');
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,14 +69,11 @@ const ImageToolsPage: React.FC = () => {
       case 1: return 'resize-img';
       case 2: return 'crop-img';
       case 3: return 'convert-img';
-<<<<<<< HEAD
       case 4: return 'rotate-img';
       case 5: return 'flip-img';
       case 6: return 'adjust-img';
       case 7: return 'blur-img';
       case 8: return 'watermark-img';
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       default: return '';
     }
   };
@@ -109,10 +91,6 @@ const ImageToolsPage: React.FC = () => {
 
     const endpoint = getEndpoint();
 
-<<<<<<< HEAD
-=======
-    // Append specific fields
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     if (endpoint === 'compress-img') {
       formData.append('quality', quality);
     } else if (endpoint === 'resize-img') {
@@ -125,7 +103,6 @@ const ImageToolsPage: React.FC = () => {
       formData.append('height', height);
     } else if (endpoint === 'convert-img') {
       formData.append('format', format);
-<<<<<<< HEAD
     } else if (endpoint === 'rotate-img') {
       formData.append('angle', rotation);
     } else if (endpoint === 'flip-img') {
@@ -137,8 +114,6 @@ const ImageToolsPage: React.FC = () => {
       formData.append('radius', blurRadius);
     } else if (endpoint === 'watermark-img') {
       formData.append('text', watermarkText);
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     }
 
     try {
@@ -157,12 +132,7 @@ const ImageToolsPage: React.FC = () => {
       const a = document.createElement('a');
       a.href = url;
       
-<<<<<<< HEAD
       const mimeType = blob.type;
-=======
-      // Determine extension from response type
-      const mimeType = blob.type; // e.g. "image/jpeg"
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       let ext = mimeType.split('/')[1] || 'png';
       if (ext === 'jpeg') ext = 'jpg';
       
@@ -183,11 +153,7 @@ const ImageToolsPage: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Image Tools",
-<<<<<<< HEAD
     "description": "Free online Image tools. Compress, Resize, Crop, Convert, Rotate, Flip, Adjust, Blur, and Watermark images.",
-=======
-    "description": "Free online Image tools. Compress images, Resize, Crop, and Convert between PNG, JPEG, and WEBP formats.",
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
     "url": window.location.href,
     "applicationCategory": "MultimediaApplication",
     "operatingSystem": "Any",
@@ -201,15 +167,9 @@ const ImageToolsPage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <SEO 
-<<<<<<< HEAD
         title="Image Tools - Compress, Resize, Crop, Convert & More" 
         description="Free online Image tools. Compress, Resize, Crop, Convert, Rotate, Flip, Adjust, Blur, and Watermark your images."
         keywords="image tools, compress image, resize image, crop image, convert image, rotate image, flip image"
-=======
-        title="Image Tools - Compress, Resize, Crop & Convert" 
-        description="Free online Image tools. Compress images, Resize, Crop, and Convert between PNG, JPEG, and WEBP formats."
-        keywords="image tools, compress image, resize image, crop image, image converter"
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       />
       <Helmet>
         <script type="application/ld+json">
@@ -220,11 +180,7 @@ const ImageToolsPage: React.FC = () => {
         Image Tools
       </Typography>
       <Typography variant="subtitle1" align="center" color="text.secondary" sx={{ mb: 4 }}>
-<<<<<<< HEAD
         Compress, resize, crop, convert & enhance your images
-=======
-        Compress, resize, crop, and convert your images.
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
       </Typography>
 
       <Paper elevation={3}>
@@ -233,14 +189,11 @@ const ImageToolsPage: React.FC = () => {
           <Tab icon={<AspectRatioIcon />} label="Resize" />
           <Tab icon={<CropIcon />} label="Crop" />
           <Tab icon={<TransformIcon />} label="Convert" />
-<<<<<<< HEAD
           <Tab icon={<RotateRightIcon />} label="Rotate" />
           <Tab icon={<FlipIcon />} label="Flip" />
           <Tab icon={<TuneIcon />} label="Adjust" />
           <Tab icon={<BlurOnIcon />} label="Blur" />
           <Tab icon={<WatermarkIcon />} label="Watermark" />
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
         </Tabs>
 
         <Box sx={{ p: 4, textAlign: 'center' }}>
@@ -269,10 +222,7 @@ const ImageToolsPage: React.FC = () => {
               <TextField 
                 label="Quality (1-100)" type="number" fullWidth 
                 value={quality} onChange={(e) => setQuality(e.target.value)} 
-<<<<<<< HEAD
                 inputProps={{ min: 1, max: 100 }}
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
               />
             </Box>
           )}
@@ -280,17 +230,10 @@ const ImageToolsPage: React.FC = () => {
           {tabValue === 1 && (
             <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
               <Grid size={4}>
-<<<<<<< HEAD
                 <TextField label="Width (px)" type="number" fullWidth value={width} onChange={(e) => setWidth(e.target.value)} inputProps={{ min: 1 }} />
               </Grid>
               <Grid size={4}>
                 <TextField label="Height (px)" type="number" fullWidth value={height} onChange={(e) => setHeight(e.target.value)} inputProps={{ min: 1 }} />
-=======
-                <TextField label="Width (px)" type="number" fullWidth value={width} onChange={(e) => setWidth(e.target.value)} />
-              </Grid>
-              <Grid size={4}>
-                <TextField label="Height (px)" type="number" fullWidth value={height} onChange={(e) => setHeight(e.target.value)} />
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
               </Grid>
             </Grid>
           )}
@@ -298,7 +241,6 @@ const ImageToolsPage: React.FC = () => {
           {tabValue === 2 && (
             <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
               <Grid size={3}>
-<<<<<<< HEAD
                 <TextField label="X (Left)" type="number" fullWidth value={cropX} onChange={(e) => setCropX(e.target.value)} inputProps={{ min: 0 }} />
               </Grid>
               <Grid size={3}>
@@ -309,18 +251,6 @@ const ImageToolsPage: React.FC = () => {
               </Grid>
               <Grid size={3}>
                 <TextField label="Height" type="number" fullWidth value={height} onChange={(e) => setHeight(e.target.value)} inputProps={{ min: 1 }} />
-=======
-                <TextField label="X (Left)" type="number" fullWidth value={cropX} onChange={(e) => setCropX(e.target.value)} />
-              </Grid>
-              <Grid size={3}>
-                <TextField label="Y (Top)" type="number" fullWidth value={cropY} onChange={(e) => setCropY(e.target.value)} />
-              </Grid>
-              <Grid size={3}>
-                <TextField label="Width" type="number" fullWidth value={width} onChange={(e) => setWidth(e.target.value)} />
-              </Grid>
-              <Grid size={3}>
-                <TextField label="Height" type="number" fullWidth value={height} onChange={(e) => setHeight(e.target.value)} />
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
               </Grid>
             </Grid>
           )}
@@ -331,15 +261,11 @@ const ImageToolsPage: React.FC = () => {
                 <MenuItem value="PNG">PNG</MenuItem>
                 <MenuItem value="JPEG">JPEG</MenuItem>
                 <MenuItem value="WEBP">WEBP</MenuItem>
-<<<<<<< HEAD
                 <MenuItem value="BMP">BMP</MenuItem>
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
               </TextField>
             </Box>
           )}
 
-<<<<<<< HEAD
           {tabValue === 4 && (
             <Box sx={{ maxWidth: 200, mx: 'auto', mb: 2 }}>
               <TextField select label="Rotation Angle" fullWidth value={rotation} onChange={(e) => setRotation(e.target.value)}>
@@ -409,8 +335,6 @@ const ImageToolsPage: React.FC = () => {
             </Box>
           )}
 
-=======
->>>>>>> df89fc36aa132a2c8ad7021dda1781cfb54b7662
           <Box sx={{ mt: 2 }}>
             <Button variant="contained" size="large" disabled={!files || loading} onClick={handleSubmit}>
               {loading ? <CircularProgress size={24} /> : 'Process Image'}
