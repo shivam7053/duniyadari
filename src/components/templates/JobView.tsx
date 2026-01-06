@@ -1,57 +1,72 @@
 import React from 'react';
-import { Box, Typography, Paper, Grid, Container, Button, Chip } from '@mui/material';
-import type { JobPost } from '../../index';
-import WorkIcon from '@mui/icons-material/Work';
-import BusinessIcon from '@mui/icons-material/Business';
+import { Box, Typography, Paper, Container, Button, Divider, Chip, Stack } from '@mui/material';
+import type { BlogPost } from '../../index';
+import ReactMarkdown from 'react-markdown';
+import { getDirectImageUrl } from '../../utils';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SellIcon from '@mui/icons-material/Sell';
 
-export const JobView: React.FC<{ post: JobPost }> = ({ post }) => {
+export const JobView: React.FC<{ post: BlogPost }> = ({ post }) => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
-              {post.title}
-            </Typography>
-            <Chip 
-              icon={<BusinessIcon />} 
-              label={post.company} 
-              color="primary" 
-              variant="outlined" 
-              sx={{ mr: 1 }} 
-            />
-            <Chip 
-              icon={<WorkIcon />} 
-              label={post.sector} 
-              color="secondary" 
-              variant="outlined" 
-            />
-          </Box>
-        </Box>
-
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Typography variant="subtitle2" color="text.secondary">Department</Typography>
-            <Typography variant="body1" fontWeight="bold">{post.department}</Typography>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Typography variant="subtitle2" color="text.secondary">Application Period</Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {post.applicationStartDate} to {post.applicationEndDate}
-            </Typography>
-          </Grid>
-        </Grid>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>Requirements</Typography>
-          <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-            {post.requirements}
+        <Typography variant="h4" component="h1" gutterBottom>
+          {post.title}
+        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+          <CalendarTodayIcon fontSize="small" color="action" />
+          <Typography variant="body2" color="text.secondary">
+            Posted on: {new Date(post.createdAt).toLocaleDateString()}
           </Typography>
-        </Box>
+        </Stack>
+        
+        {post.coverImage && (
+          <Box
+            component="img"
+            src={getDirectImageUrl(post.coverImage)}
+            alt={post.title}
+            sx={{ width: '100%', height: 'auto', borderRadius: 2, mb: 3 }}
+            referrerPolicy="no-referrer"
+          />
+        )}
 
-        <Button variant="contained" size="large" fullWidth>
-          Apply Now
-        </Button>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 4 }}>
+          Job Description
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          {post.excerpt}
+        </Typography>
+
+        <Divider sx={{ my: 3 }} />
+
+        {post.topics.map(topic => (
+          <Box key={topic.id} sx={{ mb: 4 }}>
+            <Typography variant="h6" component="h3" gutterBottom color="primary">
+              {topic.title}
+            </Typography>
+            {/* This will render actual HTML tags from your markdown content */}
+            <Box sx={{ '& p': { my: 1 }, '& ul': { pl: 3 }, '& li': { mb: 0.5 }, '& a': { color: 'primary.main' } }}>
+              <ReactMarkdown>{topic.content}</ReactMarkdown>
+            </Box>
+          </Box>
+        ))}
+
+        {post.tags && post.tags.length > 0 && (
+          <Box sx={{ my: 4 }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <SellIcon color="action" />
+              {post.tags.map(tag => (
+                <Chip key={tag} label={tag} variant="outlined" size="small" />
+              ))}
+            </Stack>
+          </Box>
+        )}
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Button variant="contained" size="large" sx={{ px: 6, py: 1.5, borderRadius: '50px' }}>
+            Apply Now
+          </Button>
+        </Box>
       </Paper>
     </Container>
   );

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Card, CardContent, Typography, CardActionArea, CircularProgress, Box, Alert } from '@mui/material';
+import { Container, Grid, Card, CardContent, CardMedia, Typography, CardActionArea, CircularProgress, Box, Alert, CardActions, Button } from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { BlogPost, Category } from '../index';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
+import { getDirectImageUrl } from '../utils';
 
 interface Props {
   category: Category;
@@ -82,17 +83,35 @@ const CategoryListPage: React.FC<Props> = ({ category, title }) => {
       <Grid container spacing={3}>
         {posts.map((post) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
-            <Card sx={{ height: '100%' }}>
-              <CardActionArea onClick={() => navigate(`/post/${post.id}`)} sx={{ height: '100%', p: 2 }}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardActionArea onClick={() => navigate(`/post/${post.id}`)}>
+                {post.coverImage && (
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={getDirectImageUrl(post.coverImage)}
+                    alt={post.title}
+                    referrerPolicy="no-referrer"
+                  />
+                )}
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
                     {post.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="caption" display="block" color="text.secondary" sx={{ mb: 1 }}>
                     {new Date(post.createdAt).toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {post.excerpt ? (post.excerpt.length > 120 ? `${post.excerpt.substring(0, 120)}...` : post.excerpt) : ''}
                   </Typography>
                 </CardContent>
               </CardActionArea>
+              <Box sx={{ flexGrow: 1 }} />
+              <CardActions>
+                <Button size="small" color="primary" onClick={() => navigate(`/post/${post.id}`)}>
+                  Read More
+                </Button>
+              </CardActions>
             </Card>
           </Grid>
         ))}

@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAuth } from 'firebase/auth';
+// import { getStorage } from 'firebase/storage';
+// import { getAuth } from 'firebase/auth';
 
 // REPLACE these values with your actual config from Firebase Console -> Project Settings
 const firebaseConfig = {
@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 
 // Export services to use in other files
 export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const auth = getAuth(app);
+// export const storage = getStorage(app);
+// export const auth = getAuth(app);
 
 export default app;

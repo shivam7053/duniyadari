@@ -9,6 +9,7 @@ import { JobView } from '../components/templates/JobView';
 import { TechView } from '../components/templates/TechView';
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
+import { getDirectImageUrl } from '../utils';
 
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,23 +41,32 @@ const PostDetailPage: React.FC = () => {
   if (error) return <Container sx={{ py: 4 }}><Alert severity="error">Error: {error}</Alert></Container>;
   if (!post) return <Box p={4}><Typography variant="h5">Post not found</Typography></Box>;
 
+  const metaDescription = post.seoDescription || post.excerpt || `${post.title} - Read more about this in our ${post.category} section on Duniyadari.`;
+  const metaKeywords = post.seoKeywords?.length 
+    ? post.seoKeywords.join(', ') 
+    : (post.tags?.join(', ') || `${post.category}, ${post.title}, duniyadari`);
+
   const seo = (
     <SEO 
       title={post.title} 
-      description={`${post.title} - Read more about this in our ${post.category} section on Duniyadari.`}
-      keywords={`${post.category}, ${post.title}, duniyadari`}
+      description={metaDescription}
+      keywords={metaKeywords}
     />
   );
 
   // Generate Structured Data (JSON-LD) for Google Rich Results
   const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+  const imageUrl = post.coverImage ? getDirectImageUrl(post.coverImage) : undefined;
   
   // Default Schema for Articles/Stories
   let schemaData: any = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": post.title,
+    "description": metaDescription,
+    "image": imageUrl ? [imageUrl] : undefined,
     "datePublished": new Date(post.createdAt).toISOString(),
+    "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
     "author": {
       "@type": "Organization",
       "name": "Duniyadari",
@@ -74,18 +84,27 @@ const PostDetailPage: React.FC = () => {
 
   // Specific Schema for Jobs
   if (post.category === 'government-jobs' || post.category === 'private-jobs') {
-    const jobPost = post as any;
+    let companyName = "Duniyadari";
+    let jobDescription = post.excerpt || metaDescription;
+
+    // Attempt to parse company from the first topic's content
+    const firstTopicContent = post.topics?.[0]?.content || '';
+    const companyMatch = firstTopicContent.match(/\*\*Company:\*\*\s*(.*)/);
+    if (companyMatch && companyMatch[1]) {
+      companyName = companyMatch[1].trim();
+    }
+
     schemaData = {
       ...schemaData,
       "@type": "JobPosting",
-      "title": jobPost.title,
-      "description": jobPost.requirements || jobPost.title,
+      "title": post.title,
+      "description": jobDescription,
       "hiringOrganization": {
         "@type": "Organization",
-        "name": jobPost.company || "Duniyadari"
+        "name": companyName
       },
-      "datePosted": new Date(jobPost.createdAt).toISOString(),
-      "validThrough": jobPost.applicationEndDate || undefined,
+      "datePosted": new Date(post.createdAt).toISOString(),
+      // "validThrough" is no longer available in the new structure
       "jobLocation": {
         "@type": "Place",
         "address": {
@@ -108,7 +127,7 @@ const PostDetailPage: React.FC = () => {
               {JSON.stringify(schemaData)}
             </script>
           </Helmet>
-          <StoryView post={post as any} />
+          <StoryView post={post} />
         </>
       );
     case 'government-jobs':
@@ -121,7 +140,7 @@ const PostDetailPage: React.FC = () => {
               {JSON.stringify(schemaData)}
             </script>
           </Helmet>
-          <JobView post={post as any} />
+          <JobView post={post} />
         </>
       );
     case 'tech-space':
@@ -133,7 +152,7 @@ const PostDetailPage: React.FC = () => {
               {JSON.stringify(schemaData)}
             </script>
           </Helmet>
-          <TechView post={post as any} />
+          <TechView post={post} />
         </>
       );
     default:

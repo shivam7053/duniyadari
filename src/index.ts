@@ -1,40 +1,47 @@
 export type Category = 'horror' | 'romantic' | 'government-jobs' | 'tech-space' | 'private-jobs';
 
-// Base interface for common fields
-interface BasePost {
-  id?: string;
+export interface BlogTopic {
+  id: string;
   title: string;
-  createdAt: number;
-  category: Category;
+  content: string; // Markdown or HTML content
+  order: number;   // Topic order inside a blog (1, 2, 3...)
 }
 
-// 1. Stories: Multiple rows of text + image
-export interface StorySegment {
-  text: string;
-  imageUrl: string;
+export interface BlogPost {
+  id: string;
+  slug: string;     // URL-friendly name (e.g., "mastering-sql-joins")
+  title: string;
+  excerpt: string;  // Short description for cards
+  coverImage?: string;
+
+  category: Category; // ✅ Added category field
+
+  createdAt: number;  // Unix timestamp
+  updatedAt: number;
+
+  tags: string[];
+  topics: BlogTopic[]; // Structured content
+
+  // SEO Fields
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+
+  // Publishing Status
+  published: boolean;
 }
 
-export interface StoryPost extends BasePost {
+// 1. Stories
+export interface StoryPost extends BlogPost {
   category: 'horror' | 'romantic';
-  segments: StorySegment[];
 }
 
-// 2. Jobs: Specific job details
-export interface JobPost extends BasePost {
+// 2. Jobs
+export interface JobPost extends BlogPost {
   category: 'government-jobs' | 'private-jobs';
-  sector: string;
-  department: string;
-  company: string;
-  requirements: string;
-  applicationStartDate: string;
-  applicationEndDate: string;
 }
 
-// 3. Tech & Space: Simple blog with hero image
-export interface TechPost extends BasePost {
+// 3. Tech & Space
+export interface TechPost extends BlogPost {
   category: 'tech-space';
-  heroImageUrl: string;
-  content: string;
 }
-
-export type BlogPost = StoryPost | JobPost | TechPost;

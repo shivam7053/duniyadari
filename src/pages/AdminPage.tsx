@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, TextField, Button, MenuItem, Typography, Container, 
-  Grid, Paper, IconButton, Divider, Snackbar, Alert
+  Grid, Paper, IconButton, Divider, Snackbar, Alert, FormControlLabel, Checkbox
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { collection, addDoc, getDocs, query, limit } from 'firebase/firestore';
+import EditIcon from '@mui/icons-material/Edit';
+import { collection, addDoc, getDocs, query, limit, doc, updateDoc, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { Category, StorySegment } from '../index';
+import type { Category, BlogTopic } from '../index';
 
 const AdminPage: React.FC = () => {
   // Auth State
@@ -18,21 +19,22 @@ const AdminPage: React.FC = () => {
   const [category, setCategory] = useState<Category>('tech-space');
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [notification, setNotification] = useState<{open: boolean, message: string, type: 'success' | 'error'}>({
     open: false, message: '', type: 'success'
   });
 
-  // Story State
-  const [segments, setSegments] = useState<StorySegment[]>([{ text: '', imageUrl: '' }]);
+  // New Post Structure State
+  const [slug, setSlug] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [coverImage, setCoverImage] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [published, setPublished] = useState(false);
+  const [topics, setTopics] = useState<BlogTopic[]>([]);
 
-  // Job State
-  const [jobData, setJobData] = useState({
-    sector: '', department: '', company: '', requirements: '', 
-    applicationStartDate: '', applicationEndDate: ''
-  });
-
-  // Tech State
-  const [techData, setTechData] = useState({ heroImageUrl: '', content: '' });
+  // SEO State
+  const [seoData, setSeoData] = useState({ description: '', keywords: '' });
 
   // Check Database Connection on Login
   useEffect(() => {
@@ -41,6 +43,7 @@ const AdminPage: React.FC = () => {
         try {
           await getDocs(query(collection(db, 'posts'), limit(1)));
           setNotification({ open: true, message: 'Database Connected Successfully', type: 'success' });
+          fetchRecentPosts();
         } catch (error: any) {
           let errorMessage = error.message;
           if (error.code === 'permission-denied') {
@@ -53,20 +56,95 @@ const AdminPage: React.FC = () => {
     }
   }, [isAuthenticated]);
 
-  const handleAddSegment = () => {
-    setSegments([...segments, { text: '', imageUrl: '' }]);
+  const fetchRecentPosts = async () => {
+    try {
+      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(10));
+      const querySnapshot = await getDocs(q);
+      setRecentPosts(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   };
 
-  const handleRemoveSegment = (index: number) => {
-    const newSegments = [...segments];
-    newSegments.splice(index, 1);
-    setSegments(newSegments);
+  const resetForm = () => {
+    setEditingId(null);
+    setTitle('');
+    setSlug('');
+    setExcerpt('');
+    setCoverImage('');
+    setTagsInput('');
+    setPublished(false);
+    setTopics([]);
+    setSeoData({ description: '', keywords: '' });
   };
 
-  const handleSegmentChange = (index: number, field: keyof StorySegment, value: string) => {
-    const newSegments = [...segments];
-    newSegments[index][field] = value;
-    setSegments(newSegments);
+  const handleEdit = (post: any) => {
+    setEditingId(post.id);
+    setCategory(post.category);
+    setTitle(post.title);
+    setSlug(post.slug || '');
+    setExcerpt(post.excerpt || '');
+    setCoverImage(post.coverImage || '');
+    setTagsInput(post.tags ? post.tags.join(', ') : '');
+    setPublished(post.published || false);
+    setSeoData({ 
+      description: post.seoDescription || '', 
+      keywords: post.seoKeywords ? post.seoKeywords.join(', ') : '' 
+    });
+
+    // Migration Logic for Old Data
+    let loadedTopics: BlogTopic[] = [];
+    if (post.topics) {
+      loadedTopics = post.topics;
+    } else if (post.segments) {
+      // Migrate Story Segments
+      loadedTopics = post.segments.map((seg: any, index: number) => ({
+        id: `topic-${Date.now()}-${index}`,
+        title: `Segment ${index + 1}`,
+        content: `${seg.text}\n\n${seg.imageUrl ? `!Image` : ''}`,
+        order: index + 1
+      }));
+    } else if (post.sections) {
+      // Migrate Tech Sections
+      loadedTopics = post.sections.map((sec: any, index: number) => ({
+        id: `topic-${Date.now()}-${index}`,
+        title: sec.title,
+        content: sec.content,
+        order: index + 1
+      }));
+    } else if (post.requirements) {
+      // Migrate Job
+      loadedTopics.push({
+        id: `topic-${Date.now()}-0`,
+        title: 'Job Details',
+        content: `**Company:** ${post.company}\n**Department:** ${post.department}\n**Sector:** ${post.sector}\n\n**Requirements:**\n${post.requirements}`,
+        order: 1
+      });
+    }
+    setTopics(loadedTopics);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAddTopic = () => {
+    setTopics([...topics, { 
+      id: Date.now().toString(), 
+      title: '', 
+      content: '', 
+      order: topics.length + 1 
+    }]);
+  };
+
+  const handleRemoveTopic = (index: number) => {
+    const newTopics = [...topics];
+    newTopics.splice(index, 1);
+    setTopics(newTopics);
+  };
+
+  const handleTopicChange = (index: number, field: keyof BlogTopic, value: string) => {
+    const newTopics = [...topics];
+    (newTopics[index] as any)[field] = value;
+    setTopics(newTopics);
   };
 
   const handleSubmit = async () => {
@@ -91,38 +169,34 @@ const AdminPage: React.FC = () => {
       return;
     }
 
-    // 2. Category Specific Validation
-    if (category === 'tech-space' && !techData.content.trim()) {
-      setNotification({ open: true, message: 'Content is required for Tech posts', type: 'error' });
-      return;
-    }
-
-    if ((category === 'government-jobs' || category === 'private-jobs') && !jobData.company.trim()) {
-      setNotification({ open: true, message: 'Company name is required', type: 'error' });
-      return;
-    }
-
-    if ((category === 'horror' || category === 'romantic') && segments.some(s => !s.text.trim())) {
-      setNotification({ open: true, message: 'All story segments must have text', type: 'error' });
-      return;
-    }
-
     setLoading(true);
     try {
-      const baseData = {
+      // Auto-generate slug if missing
+      let finalSlug = slug.trim();
+      if (!finalSlug) {
+        finalSlug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+      }
+
+      const finalTags = tagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
+      const finalSeoKeywords = seoData.keywords.split(',').map(k => k.trim()).filter(k => k !== '');
+
+      const postData: any = {
         title,
+        slug: finalSlug,
+        excerpt,
+        coverImage,
         category,
-        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        tags: finalTags,
+        topics: topics.map((t, i) => ({ ...t, order: i + 1 })),
+        seoTitle: title,
+        seoDescription: seoData.description,
+        seoKeywords: finalSeoKeywords,
+        published
       };
 
-      let finalData = {};
-
-      if (category === 'horror' || category === 'romantic') {
-        finalData = { ...baseData, segments };
-      } else if (category === 'government-jobs' || category === 'private-jobs') {
-        finalData = { ...baseData, ...jobData };
-      } else {
-        finalData = { ...baseData, ...techData };
+      if (!editingId) {
+        postData.createdAt = Date.now();
       }
 
       // Create a timeout promise to prevent hanging indefinitely
@@ -130,15 +204,16 @@ const AdminPage: React.FC = () => {
         setTimeout(() => reject(new Error("Request timed out. 1. Restart server. 2. Check Firestore Rules (Test Mode).")), 20000)
       );
 
-      // Race the addDoc against the timeout
-      await Promise.race([addDoc(collection(db, 'posts'), finalData), timeoutPromise]);
-      setNotification({ open: true, message: 'Post created successfully!', type: 'success' });
+      if (editingId) {
+        await Promise.race([updateDoc(doc(db, 'posts', editingId), postData), timeoutPromise]);
+        setNotification({ open: true, message: 'Post updated successfully!', type: 'success' });
+      } else {
+        await Promise.race([addDoc(collection(db, 'posts'), postData), timeoutPromise]);
+        setNotification({ open: true, message: 'Post created successfully!', type: 'success' });
+      }
       
-      // Reset form
-      setTitle('');
-      setSegments([{ text: '', imageUrl: '' }]);
-      setJobData({ sector: '', department: '', company: '', requirements: '', applicationStartDate: '', applicationEndDate: '' });
-      setTechData({ heroImageUrl: '', content: '' });
+      resetForm();
+      fetchRecentPosts();
 
     } catch (error: any) {
       console.error("Submission Error:", error);
@@ -189,7 +264,7 @@ const AdminPage: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>Admin Dashboard</Typography>
+      <Typography variant="h4" gutterBottom>{editingId ? 'Edit Post' : 'Create New Post'}</Typography>
       <Paper sx={{ p: 4 }}>
         <Grid container spacing={3}>
           <Grid size={12}>
@@ -211,88 +286,133 @@ const AdminPage: React.FC = () => {
           <Grid size={12}>
             <TextField
               fullWidth
+              label="Slug (URL Friendly Name)"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="Leave empty to auto-generate from title"
+              helperText="e.g. my-awesome-post"
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Excerpt (Short Description)"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Cover Image URL"
+              value={coverImage}
+              onChange={(e) => setCoverImage(e.target.value)}
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <TextField
+              fullWidth
               label="Post Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </Grid>
 
-          {/* STORY FORM */}
-          {(category === 'horror' || category === 'romantic') && (
-            <Grid size={12}>
-              <Typography variant="h6" gutterBottom>Story Segments</Typography>
-              {segments.map((segment, index) => (
-                <Paper key={index} variant="outlined" sx={{ p: 2, mb: 2 }}>
-                  <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography variant="subtitle2">Segment {index + 1}</Typography>
-                    <IconButton onClick={() => handleRemoveSegment(index)} color="error" size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label="Story Text"
-                    value={segment.text}
-                    onChange={(e) => handleSegmentChange(index, 'text', e.target.value)}
-                    sx={{ mb: 2 }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Image URL"
-                    value={segment.imageUrl}
-                    onChange={(e) => handleSegmentChange(index, 'imageUrl', e.target.value)}
-                  />
-                </Paper>
-              ))}
-              <Button startIcon={<AddIcon />} onClick={handleAddSegment}>Add Segment</Button>
-            </Grid>
-          )}
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="SEO Description (Meta)"
+              value={seoData.description}
+              onChange={(e) => setSeoData({...seoData, description: e.target.value})}
+              placeholder="Short summary for search engines (150-160 chars)"
+            />
+          </Grid>
 
-          {/* JOB FORM */}
-          {(category === 'government-jobs' || category === 'private-jobs') && (
-            <>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Company/Organization" value={jobData.company} onChange={(e) => setJobData({...jobData, company: e.target.value})} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Sector" value={jobData.sector} onChange={(e) => setJobData({...jobData, sector: e.target.value})} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Department" value={jobData.department} onChange={(e) => setJobData({...jobData, department: e.target.value})} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Requirements" multiline rows={2} value={jobData.requirements} onChange={(e) => setJobData({...jobData, requirements: e.target.value})} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Start Date" type="date" InputLabelProps={{ shrink: true }} value={jobData.applicationStartDate} onChange={(e) => setJobData({...jobData, applicationStartDate: e.target.value})} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="End Date" type="date" InputLabelProps={{ shrink: true }} value={jobData.applicationEndDate} onChange={(e) => setJobData({...jobData, applicationEndDate: e.target.value})} />
-              </Grid>
-            </>
-          )}
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="SEO Keywords"
+              value={seoData.keywords}
+              onChange={(e) => setSeoData({...seoData, keywords: e.target.value})}
+              placeholder="Comma separated keywords (e.g. tech, space, nasa)"
+            />
+          </Grid>
 
-          {/* TECH FORM */}
-          {category === 'tech-space' && (
-            <>
-              <Grid size={12}>
-                <TextField fullWidth label="Hero Image URL" value={techData.heroImageUrl} onChange={(e) => setTechData({...techData, heroImageUrl: e.target.value})} />
-              </Grid>
-              <Grid size={12}>
-                <TextField fullWidth multiline rows={10} label="Content" value={techData.content} onChange={(e) => setTechData({...techData, content: e.target.value})} />
-              </Grid>
-            </>
-          )}
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Tags"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder="Comma separated tags (e.g. tech, news, jobs)"
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <FormControlLabel
+              control={<Checkbox checked={published} onChange={(e) => setPublished(e.target.checked)} />}
+              label="Published (Visible to public)"
+            />
+          </Grid>
+
+          {/* UNIFIED TOPICS EDITOR */}
+          <Grid size={12}>
+            <Typography variant="h6" gutterBottom>Content Topics</Typography>
+            <Typography variant="caption" color="text.secondary" paragraph>
+              Add topics to structure your post. For Stories, these are segments. For Tech, these are sections. For Jobs, add details here.
+            </Typography>
+            {topics.map((topic, index) => (
+              <Paper key={topic.id} variant="outlined" sx={{ p: 2, mb: 2 }}>
+                <Box display="flex" justifyContent="space-between" mb={1}>
+                  <Typography variant="subtitle2">Topic {index + 1}</Typography>
+                  <IconButton onClick={() => handleRemoveTopic(index)} color="error" size="small">
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+                <TextField
+                  fullWidth label="Topic Title" value={topic.title}
+                  onChange={(e) => handleTopicChange(index, 'title', e.target.value)} sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth multiline rows={6} label="Content (Markdown/HTML)" value={topic.content}
+                  onChange={(e) => handleTopicChange(index, 'content', e.target.value)}
+                />
+              </Paper>
+            ))}
+            <Button startIcon={<AddIcon />} onClick={handleAddTopic}>Add Topic</Button>
+          </Grid>
 
           <Grid size={12}>
             <Divider sx={{ my: 2 }} />
-            <Button variant="contained" size="large" fullWidth onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Publishing...' : 'Publish Post'}
-            </Button>
+            <Box display="flex" gap={2}>
+              {editingId && (
+                <Button variant="outlined" size="large" fullWidth onClick={resetForm} color="secondary">
+                  Cancel Edit
+                </Button>
+              )}
+              <Button variant="contained" size="large" fullWidth onClick={handleSubmit} disabled={loading}>
+                {loading ? (editingId ? 'Updating...' : 'Publishing...') : (editingId ? 'Update Post' : 'Publish Post')}
+              </Button>
+            </Box>
           </Grid>
         </Grid>
+
+        <Divider sx={{ my: 4 }} />
+        <Typography variant="h5" gutterBottom>Recent Posts</Typography>
+        {recentPosts.map((post) => (
+          <Paper key={post.id} variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold">{post.title}</Typography>
+              <Typography variant="caption" color="text.secondary">{post.category} • {new Date(post.createdAt).toLocaleDateString()}</Typography>
+            </Box>
+            <Button startIcon={<EditIcon />} variant="outlined" size="small" onClick={() => handleEdit(post)}>Edit</Button>
+          </Paper>
+        ))}
       </Paper>
       
       <Snackbar open={notification.open} autoHideDuration={6000} onClose={() => setNotification({...notification, open: false})}>
