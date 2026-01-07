@@ -5,6 +5,17 @@ import ReactMarkdown from 'react-markdown';
 import { getDirectImageUrl } from '../../utils';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SellIcon from '@mui/icons-material/Sell';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
+const getDriveViewLink = (url: string) => {
+  if (!url) return '';
+  // Fix 503 errors by converting download links to view links
+  if (url.includes('drive.google.com') && url.includes('export=download')) {
+    const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) return `https://drive.google.com/file/d/${match[1]}/view?usp=sharing`;
+  }
+  return url;
+};
 
 export const JobView: React.FC<{ post: BlogPost }> = ({ post }) => {
   return (
@@ -62,7 +73,20 @@ export const JobView: React.FC<{ post: BlogPost }> = ({ post }) => {
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, gap: 2, flexWrap: 'wrap' }}>
+          {post.resources && (
+            <Button 
+              variant="outlined" 
+              size="large" 
+              href={getDriveViewLink(post.resources)}
+              target="_blank"
+              rel="noopener noreferrer"
+              startIcon={<CloudDownloadIcon />}
+              sx={{ px: 4, py: 1.5, borderRadius: '50px' }}
+            >
+              Download PDF
+            </Button>
+          )}
           <Button variant="contained" size="large" sx={{ px: 6, py: 1.5, borderRadius: '50px' }}>
             Apply Now
           </Button>

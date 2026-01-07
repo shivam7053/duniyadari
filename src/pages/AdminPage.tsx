@@ -30,6 +30,7 @@ const AdminPage: React.FC = () => {
   const [excerpt, setExcerpt] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+  const [resources, setResources] = useState('');
   const [published, setPublished] = useState(false);
   const [topics, setTopics] = useState<BlogTopic[]>([]);
 
@@ -73,6 +74,7 @@ const AdminPage: React.FC = () => {
     setExcerpt('');
     setCoverImage('');
     setTagsInput('');
+    setResources('');
     setPublished(false);
     setTopics([]);
     setSeoData({ description: '', keywords: '' });
@@ -86,6 +88,7 @@ const AdminPage: React.FC = () => {
     setExcerpt(post.excerpt || '');
     setCoverImage(post.coverImage || '');
     setTagsInput(post.tags ? post.tags.join(', ') : '');
+    setResources(post.resources || '');
     setPublished(post.published || false);
     setSeoData({ 
       description: post.seoDescription || '', 
@@ -189,6 +192,7 @@ const AdminPage: React.FC = () => {
         updatedAt: Date.now(),
         tags: finalTags,
         topics: topics.map((t, i) => ({ ...t, order: i + 1 })),
+        resources,
         seoTitle: title,
         seoDescription: seoData.description,
         seoKeywords: finalSeoKeywords,
@@ -350,6 +354,16 @@ const AdminPage: React.FC = () => {
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="Comma separated tags (e.g. tech, news, jobs)"
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Resources (GDrive Link)"
+              value={resources}
+              onChange={(e) => setResources(e.target.value)}
+              placeholder="Optional link to notes or resources"
             />
           </Grid>
 

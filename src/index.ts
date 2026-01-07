@@ -21,6 +21,7 @@ export interface BlogPost {
 
   tags: string[];
   topics: BlogTopic[]; // Structured content
+  resources?: string; // Optional GDrive link for notes
 
   // SEO Fields
   seoTitle?: string;

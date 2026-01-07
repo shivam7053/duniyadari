@@ -83,16 +83,31 @@ const CategoryListPage: React.FC<Props> = ({ category, title }) => {
       <Grid container spacing={3}>
         {posts.map((post) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Card 
+              sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: 10,
+                  '& .MuiCardMedia-root': { transform: 'scale(1.05)' }
+                }
+              }}
+            >
               <CardActionArea onClick={() => navigate(`/post/${post.id}`)}>
                 {post.coverImage && (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={getDirectImageUrl(post.coverImage)}
-                    alt={post.title}
-                    referrerPolicy="no-referrer"
-                  />
+                  <Box sx={{ overflow: 'hidden' }}>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={getDirectImageUrl(post.coverImage)}
+                      alt={post.title}
+                      referrerPolicy="no-referrer"
+                      sx={{ transition: 'transform 0.3s ease-in-out' }}
+                    />
+                  </Box>
                 )}
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
