@@ -32,6 +32,10 @@ const Navbar: React.FC<NavbarProps> = ({ mode, toggleTheme }) => {
   const [anchorElJobs, setAnchorElJobs] = useState<null | HTMLElement>(null);
   const openJobs = Boolean(anchorElJobs);
 
+  // State for Date & Time Dropdown
+  const [anchorElDateTime, setAnchorElDateTime] = useState<null | HTMLElement>(null);
+  const openDateTime = Boolean(anchorElDateTime);
+
   const handleStoriesClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -40,9 +44,14 @@ const Navbar: React.FC<NavbarProps> = ({ mode, toggleTheme }) => {
     setAnchorElJobs(event.currentTarget);
   };
 
+  const handleDateTimeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElDateTime(event.currentTarget);
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
     setAnchorElJobs(null);
+    setAnchorElDateTime(null);
   };
 
   const handleNavigate = (path: string) => {
@@ -140,6 +149,33 @@ const Navbar: React.FC<NavbarProps> = ({ mode, toggleTheme }) => {
             <Button color="inherit" onClick={() => handleNavigate('/tools/image')}>
               Image Tools
             </Button>
+            
+            {/* Date & Time Dropdown */}
+            <Box>
+              <Button
+                id="datetime-button"
+                aria-controls={openDateTime ? 'datetime-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={openDateTime ? 'true' : undefined}
+                onClick={handleDateTimeClick}
+                endIcon={<KeyboardArrowDownIcon />}
+                color="inherit"
+              >
+                Date & Time
+              </Button>
+              <Menu
+                id="datetime-menu"
+                anchorEl={anchorElDateTime}
+                open={openDateTime}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'datetime-button',
+                }}
+              >
+                <MenuItem onClick={() => handleNavigate('/calendar')}>Calendar</MenuItem>
+                <MenuItem onClick={() => handleNavigate('/tools/world-clock')}>World Clock</MenuItem>
+              </Menu>
+            </Box>
           </Box>
 
           {/* Theme Toggle (Right side) */}

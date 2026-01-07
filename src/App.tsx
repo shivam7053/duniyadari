@@ -10,6 +10,8 @@ import PostDetailPage from './pages/PostDetailPage';
 import PdfToolsPage from './pages/PdfToolsPage';
 import DocToolsPage from './pages/DocToolsPage';
 import ImageToolsPage from './pages/ImageToolsPage';
+import CalendarPage from './pages/CalendarPage';
+import WorldClockPage from './pages/WorldClockPage';
 
 // Placeholder components for now
 const Home = () => (
@@ -52,6 +54,8 @@ function App() {
           <Route path="/tools/pdf" element={<PdfToolsPage />} />
           <Route path="/tools/doc" element={<DocToolsPage />} />
           <Route path="/tools/image" element={<ImageToolsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/tools/world-clock" element={<WorldClockPage />} />
 
           {/* Admin Route */}
           <Route path="/admin" element={<AdminPage />} />

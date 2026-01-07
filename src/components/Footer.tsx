@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
     >
       <Container maxWidth="xl">
         <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Box component="img" src="/logo.png" alt="duniyadari" sx={{ height: 60, mb: 1 }} />
             <Typography variant="h6" color="primary" gutterBottom sx={{ fontWeight: 'bold' }}>
               duniyadari
@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
               Your daily dose of everything that matters.
             </Typography>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Typography variant="h6" color="text.primary" gutterBottom>
               Explore
             </Typography>
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
               <Link component="button" variant="body2" onClick={() => navigate('/category/tech-space')} color="text.secondary" sx={{ textAlign: 'left' }}>Tech & Space</Link>
             </Box>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Typography variant="h6" color="text.primary" gutterBottom>
               Tools
             </Typography>
@@ -87,6 +87,15 @@ const Footer: React.FC = () => {
               <Link component="button" variant="body2" onClick={() => navigate('/tools/pdf')} color="text.secondary" sx={{ textAlign: 'left' }}>PDF Tools</Link>
               <Link component="button" variant="body2" onClick={() => navigate('/tools/doc')} color="text.secondary" sx={{ textAlign: 'left' }}>Doc Tools</Link>
               <Link component="button" variant="body2" onClick={() => navigate('/tools/image')} color="text.secondary" sx={{ textAlign: 'left' }}>Image Tools</Link>
+            </Box>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Typography variant="h6" color="text.primary" gutterBottom>
+              Date & Time
+            </Typography>
+            <Box display="flex" flexDirection="column" gap={1}>
+              <Link component="button" variant="body2" onClick={() => navigate('/calendar')} color="text.secondary" sx={{ textAlign: 'left' }}>Calendar</Link>
+              <Link component="button" variant="body2" onClick={() => navigate('/tools/world-clock')} color="text.secondary" sx={{ textAlign: 'left' }}>World Clock</Link>
             </Box>
           </Grid>
         </Grid>
