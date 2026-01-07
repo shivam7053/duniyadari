@@ -8,6 +8,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SEO from '../components/SEO';
+import { Helmet } from 'react-helmet-async';
 
 // Moon Phase Calculation Helper
 const getMoonPhase = (year: number, month: number, day: number) => {
@@ -147,10 +148,33 @@ const CalendarPage: React.FC = () => {
     return cells;
   };
 
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calendar & Moon Phases",
+    "description": "View yearly and monthly calendar with moon phases. Track lunar cycles and plan your schedule.",
+    "url": window.location.href,
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <SEO title="Calendar & Moon Phases" description="View yearly and monthly calendar with moon phases." />
-      
+      <SEO 
+        title="Calendar with Moon Phases - Monthly & Yearly View" 
+        description="Free online calendar with moon phases. View monthly and yearly calendars, track full moons, new moons, and lunar cycles."
+        keywords="calendar, moon phases, lunar calendar, full moon dates, new moon dates, online calendar, yearly calendar, monthly calendar"
+      />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
       <Paper elevation={3} sx={{ p: { xs: 2, md: 4 } }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={4} flexWrap="wrap" gap={2}>
             <Box display="flex" alignItems="center" gap={1}>

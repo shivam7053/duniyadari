@@ -6,6 +6,7 @@ import {
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SEO from '../components/SEO';
+import { Helmet } from 'react-helmet-async';
 
 // Comprehensive list of major timezones
 const allTimeZones = [
@@ -98,10 +99,33 @@ const WorldClockPage: React.FC = () => {
     }).format(date);
   };
 
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "World Clock",
+    "description": "Check current time across major cities worldwide. Real-time world clock and time zone converter.",
+    "url": window.location.href,
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <SEO title="World Clock" description="Check current time across major cities worldwide." />
-      
+      <SEO 
+        title="World Clock - Current Time & Time Zones Worldwide" 
+        description="Get the exact current local time in cities around the world. Accurate world clock, time zone converter, and daylight saving time information."
+        keywords="world clock, current time, time zones, local time, utc time, gmt time, online clock, time converter, exact time"
+      />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
       <Box textAlign="center" mb={6}>
         {/* Animated Globe */}
         <Box sx={{ mb: 2, display: 'inline-block', perspective: '500px' }}>

@@ -46,17 +46,19 @@ const PostDetailPage: React.FC = () => {
     ? post.seoKeywords.join(', ') 
     : (post.tags?.join(', ') || `${post.category}, ${post.title}, duniyadari`);
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+  const imageUrl = post.coverImage ? getDirectImageUrl(post.coverImage) : undefined;
+
   const seo = (
     <SEO 
       title={post.title} 
       description={metaDescription}
       keywords={metaKeywords}
+      image={imageUrl}
+      type="article"
     />
   );
 
-  // Generate Structured Data (JSON-LD) for Google Rich Results
-  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
-  const imageUrl = post.coverImage ? getDirectImageUrl(post.coverImage) : undefined;
   
   // Default Schema for Articles/Stories
   let schemaData: any = {

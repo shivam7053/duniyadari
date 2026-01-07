@@ -16,7 +16,11 @@ import WorldClockPage from './pages/WorldClockPage';
 // Placeholder components for now
 const Home = () => (
   <Box p={4}>
-    <SEO title="Home" description="Duniyadari - Your daily source for stories, government jobs, private jobs, and technology news." />
+    <SEO 
+      title="Home" 
+      description="Duniyadari is your ultimate destination for daily stories, latest government and private job updates, technology news, and space exploration insights. Stay informed and entertained." 
+      keywords="stories, horror stories, romantic stories, government jobs, private jobs, technology news, space news, pdf tools, image tools, world clock, calendar"
+    />
     <Typography variant="h4">Welcome to the Blog</Typography>
   </Box>
 );
